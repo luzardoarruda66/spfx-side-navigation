@@ -19,8 +19,8 @@ export default class SideNavNode extends React.Component<
 
   public render(): JSX.Element {
     const nodeClasses: string[] = ["site-nav-node"];
-    const url = (window.location.href.split('?') ? window.location.href.split('?')[0] : window.location.href).toLowerCase();
-    if(this.props.siteNavItem.url && this.props.siteNavItem.url.toLowerCase() === url) {
+    const url : string = (window.location.href.split('?') ? window.location.href.split('?')[0] : window.location.href).toLowerCase();
+    if (this.props.siteNavItem.url && this.props.siteNavItem.url.toLowerCase() === url) {
       nodeClasses.push("active");
     }
     if (this.state.isOpened && this.props.navIsOpened) {

@@ -6,6 +6,8 @@ import ISideNavProvider from "./provider/ISideNavProvider";
 import SideNavProvider from "./provider/SideNavProvider";
 import ISideNavProps from "./ISideNavProps";
 import ISideNavState from "./ISideNavState";
+import { SearchIcon } from "../../../../assets/SearchIcon";
+import { Dialog } from '@fluentui/react';
 
 export default class SideNav extends React.Component<
   ISideNavProps,
@@ -17,9 +19,12 @@ export default class SideNav extends React.Component<
     super(props);
     this.state = {
       siteNavItems: [],
-      isOpened: false,
+      isOpened: true,
+      showDialog: false,
+      searchText: ''
     };
     window.addEventListener("click", this.handleOutsideClick, true);
+
   }
 
   public componentWillMount(): void {
@@ -37,6 +42,11 @@ export default class SideNav extends React.Component<
       .catch((error) => {
         console.log(error);
       });
+    window.addEventListener('resize', (ev) => {
+      if (window.innerWidth === 800) {
+        this.setState({ isOpened: false })
+      }
+    })
   }
 
   public render(): JSX.Element {
@@ -54,33 +64,70 @@ export default class SideNav extends React.Component<
         }} /* set to hidden then onces css loads it will be visible */
       >
         <div className={siteMenuClass}>
-          <div className="menu-toggle">
-            {
-              <IconButton
-                className="site-menu-icon"
-                checked={false}
-                iconProps={{
-                  iconName: toggleIconName,
-                }}
-                title="Toggle Menu"
-                ariaLabel="Toggle Menu"
-                onClick={this.toggleNav}
-              />
-            }
-          </div>
-
+          <img src={require(this.state.isOpened ? '../../../../assets/logo.png' : '../../../../assets/logomini.png')} style={{ backgroundColor: 'transparent', marginLeft: '14px', marginTop: '14px' }} />
+          <button className="search-btn-side" onClick={() => this.setState({ showDialog: true })} style={{ overflow: 'hidden', width: this.state.isOpened ? '' : '30px' }}>
+            <SearchIcon isOpen={this.state.isOpened} />{this.state.isOpened ? 'Buscar por...' : ''}
+          </button>
           {this.state.siteNavItems.length > 0 &&
             this.state.siteNavItems.map(this.renderSideNavNodes)}
         </div>
+        <div className="menu-toggle">
+          {
+            <IconButton
+              className={"site-menu-icon"}
+              checked={false}
+              iconProps={{
+                iconName: toggleIconName
+              }}
+              title="Toggle Menu"
+              ariaLabel="Toggle Menu"
+              onClick={this.toggleNav}
+            />
+          }
+        </div>
+        {/* Dialog*/}
+        <Dialog
+          isOpen={this.state.showDialog}
+          modalProps={{ className: "dialog-box" }}
+          onDismiss={() => this.setState({ showDialog: false })}
+          dialogContentProps={{ showCloseButton: false }}>
+          <div className="search-Dialog">
+            <div className="lateral-search-Dialog">
+              <div className="lateral-search-header">FILTRAR BUSCA</div>
+              <div className="lateral-search-filters">
+                <div className="lateral-search-header-filter">ORDENAR POR</div>
+                <label className="checkbox-lateral-search">
+                  <input type="radio" name="orderby" className="lateral-search-radio" />
+                  Relevância
+                </label>
+                <label className="checkbox-lateral-search">
+                  <input type="radio" name="orderby" className="lateral-search-radio" />
+                  Recentes
+                </label>
+                <label className="checkbox-lateral-search">
+                  <input type="radio" name="orderby" className="lateral-search-radio" />
+                  A-Z
+                </label>
+              </div>
+            </div>
+            <div className="search-dialog-input">
+              <SearchIcon isOpen={true} />
+              <input
+                value={this.state.searchText}
+                onChange={(event) => { this.setState({ searchText: event.target.value }) }}
+                type="text"
+                className="search-dialog-inputbox"
+                placeholder="Digite o termo que deseja buscar" />
+            </div>
+          </div>
+        </Dialog>
       </div>
     );
   }
-
   private handleOutsideClick = (event: any) => {
     if (!this.state.isOpened) {
       return;
     } // if site nav is already closed, abort
-
     let foundSideNavPanel: boolean = false;
     for (let i: number = 0; i < event.path.length; i++) {
       const node: HTMLElement = event.path[i];
@@ -99,6 +146,7 @@ export default class SideNav extends React.Component<
   };
 
   private toggleNav = (): void => {
+    document.getElementById('sp-appBar').style.width = !this.state.isOpened ? '260px' : '48px';
     this.setState((state, props) => ({
       isOpened: !state.isOpened,
     }));

@@ -23,6 +23,8 @@ export default class SpfxSideNavigationApplicationCustomizer
 
     @override
     public onInit(): Promise<void> {
+      document.getElementById('sp-appBar').style.width = '260px';
+
       initializeIcons();
       return super.onInit().then(_ => {
         pnpSetup({
